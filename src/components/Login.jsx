@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 export default function Login() {
   return (
     <div className="register-container">
@@ -13,7 +13,7 @@ export default function Login() {
           <button type="submit">Sign Up</button>
         </form>
         <p className="login-text">
-          Dont have an account? <a href="/login">signup</a>
+          Dont have an account? <Link to="/signup">signup</Link>
         </p>
       </div>
     </div>

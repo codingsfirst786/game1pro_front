@@ -1,14 +1,19 @@
-import React from 'react'
-import Register from './components/Rigester'
-import "./App.css"
-import Login from './components/Login'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./components/Login.jsx"
+import Register from "./components/Rigester.jsx";
 const App = () => {
   return (
-    <div>
-      {/* <Login/> */}
-      <Register/>
-    </div>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
 
-export default App
+        <Route path="/signup" element={<Register />} />
+
+        <Route path="*" element={<Login />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;

@@ -1,5 +1,6 @@
 import React from "react";
 import "../Css/Register.css";
+import { Link } from "react-router-dom";
 
 export default function Register() {
   return (
@@ -14,7 +15,7 @@ export default function Register() {
           <button type="submit">Sign Up</button>
         </form>
         <p className="login-text">
-          Already have an account? <a href="/login">Login</a>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>
     </div>
