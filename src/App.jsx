@@ -4,6 +4,7 @@ import Login from "./components/Login.jsx"
 import Register from "./components/Rigester.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Home from "./components/Home.jsx";
+import "./App.css"
 const App = () => {
   return (
      <Router>

@@ -1,0 +1,107 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-left h1 {
+  color: #00ff88;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navbar-center a {
+  margin: 0 15px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.navbar-center a:hover {
+  color: #00ff88;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.balance-box {
+  background: #988d8d27;
+  color: #00ff88;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.add-more {
+  display: flex;
+  align-items: center;
+  background: #111;
+  color: #00ff88;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.add-more:hover {
+  background: #00cc66;
+  color: #000;
+}
+
+.add-more span {
+  margin-left: 5px;
+}
+
+.hamburger {
+  display: none;
+  font-size: 28px;
+  color: #00ff88;
+  cursor: pointer;
+}
+
+
+@media (max-width: 768px) {
+  .navbar-center {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.95);
+    flex-direction: column;
+    display: none;
+    z-index: 999;
+  }
+
+  .navbar-center.active {
+    display: flex;
+  }
+
+  .navbar-center a {
+    margin: 10px 0;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .navbar-right .profile-icon {
+    display: none;
+  }
+
+  .navbar-right .add-text {
+    display: none;
+  }
+}
