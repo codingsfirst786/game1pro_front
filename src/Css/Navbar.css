@@ -69,7 +69,13 @@
   color: #00ff88;
   cursor: pointer;
 }
-
+.profile-icon {
+  display: block;
+  margin-left: 10px;
+  font-size: 24px;
+  color: #00ff88;
+  cursor: pointer;
+}
 
 @media (max-width: 768px) {
   .navbar-center {
