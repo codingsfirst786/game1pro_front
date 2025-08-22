@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import "../Css/Login.css"
+import "../Css/Login.css";
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -20,6 +20,7 @@ export default function Login() {
       const data = await res.json();
       if (res.ok) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("email", email);
         navigate("/home");
       } else {
         setError(data.message || "Login failed");

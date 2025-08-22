@@ -111,3 +111,14 @@
     display: none;
   }
 }
+.profile-icon {
+  display: block;
+  margin-left: 15px;
+  color: #00ff88;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.profile-icon:hover {
+  color: #00cc66;
+}

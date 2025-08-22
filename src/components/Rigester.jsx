@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import "../Css/Register.css"
+import "../Css/Register.css";
 
 export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState(""); 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,13 +22,13 @@ export default function Register() {
       const res = await fetch("http://localhost:3000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, username, password }), 
       });
 
       const data = await res.json();
       if (res.ok) {
         localStorage.setItem("token", data.auth);
-        navigate("/home");
+        navigate("/login");
       } else {
         setError(data.message || "Registration failed");
       }
@@ -49,6 +50,15 @@ export default function Register() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+
           <input
             type="password"
             placeholder="Password"
@@ -56,6 +66,7 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
           <input
             type="password"
             placeholder="Confirm Password"
@@ -63,6 +74,7 @@ export default function Register() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
+
           <button type="submit">Sign Up</button>
         </form>
 
