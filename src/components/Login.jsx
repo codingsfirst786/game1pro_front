@@ -21,6 +21,8 @@ export default function Login() {
       if (res.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("email", email);
+         localStorage.setItem("userId", data.user._id);
+         console.log(data.user._id)
         navigate("/home");
       } else {
         setError(data.message || "Login failed");
