@@ -11,6 +11,8 @@ import Withdraws from "./components/Withdrawal.jsx";
 import Purchasing from "./components/purchasing.jsx";
 import WithdrawAccount from "./components/WithdrawalAccount.jsx";
 import Settings from "./components/Settings.jsx";
+import WheelGame from "./components/Wheelgame.jsx";
+import Wheelgame from "./components/Wheelgame.jsx";
 
 const App = () => {
   return (
@@ -74,6 +76,22 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Settings/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <WheelGame/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wheel"
+          element={
+            <ProtectedRoute>
+              <Wheelgame/>
             </ProtectedRoute>
           }
         />
