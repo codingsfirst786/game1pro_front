@@ -8,7 +8,7 @@ import img3 from "../assets/img3.png";
 
 const games = [
   { id: 1, title: "Lucky wheel", img: img1, path: "/wheel" },
-  { id: 2, title: "Dragon Quest", img: img2, path: "/dragonquest" },
+  { id: 2, title: "Dragon Quest", img: img2, path: "/Dice" },
   { id: 3, title: "Galaxy Shooter", img: img3, path: "/galaxyshooter" },
   { id: 4, title: "Mystic Slots", path: "/mysticslots" },
   { id: 5, title: "Battle Arena", path: "/battlearena" },

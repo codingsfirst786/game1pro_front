@@ -13,6 +13,8 @@ import WithdrawAccount from "./components/WithdrawalAccount.jsx";
 import Settings from "./components/Settings.jsx";
 import WheelGame from "./components/Wheelgame.jsx";
 import Wheelgame from "./components/Wheelgame.jsx";
+// import Diceface from "./components/Dice.jsx";
+import DiceGame from "./components/DiceGame.jsx";
 
 const App = () => {
   return (
@@ -92,6 +94,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Wheelgame/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Dice"
+          element={
+            <ProtectedRoute>
+              <DiceGame/>
             </ProtectedRoute>
           }
         />
