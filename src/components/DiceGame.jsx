@@ -254,7 +254,7 @@ const DiceGame = () => {
             const total = dice1Value + dice2Value;
             const selectedOption = selectedOptions[0]; // Assuming only one option is selected
             let totalWin = 0;
-
+            console.log(totalWin)
             const isWin =
                 (selectedOption === 'Below 6' && total < 6) ||
                 (selectedOption === 'Equal 7' && total === 7) ||
