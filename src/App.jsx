@@ -22,7 +22,6 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
-
         <Route
           path="/home"
           element={
@@ -105,7 +104,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
         <Route path="*" element={<Login />} />
       </Routes>
     </Router>
