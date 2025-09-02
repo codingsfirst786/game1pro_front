@@ -78,7 +78,9 @@ const Home = () => {
           {games.map((game, index) => (
             <div
               key={game.id}
-              className={`game-card ${index < 3 ? "hover-card" : "coming-soon"}`}
+              className={`game-card ${
+                index < 3 ? "hover-card" : "coming-soon"
+              }`}
               onClick={() => game.path && handleGameClick(game.path)}
               style={{ cursor: game.path ? "pointer" : "default" }}
             >

@@ -1,39 +1,46 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../Css/Register.css";
+import { useRegisterMutation } from "../Api/Slices/userApi";
 
 export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState(""); 
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
+
+  const [registerUser, { isLoading }] = useRegisterMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+
+    if (!email || !username || !password || !confirmPassword) {
+      setFormError("All fields are required");
       return;
     }
 
-    try {
-      const res = await fetch("http://localhost:3000/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, username, password }), 
-      });
+    if (password !== confirmPassword) {
+      setFormError("Passwords do not match");
+      return;
+    }
 
-      const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem("token", data.auth);
-        navigate("/login");
-      } else {
-        setError(data.message || "Registration failed");
+    setFormError("");
+
+    try {
+      const result = await registerUser({ email, username, password }).unwrap();
+
+      if (result.auth) {
+        localStorage.setItem("token", result.auth);
       }
+
+      toast.success("Registration successful!");
+      navigate("/login");
     } catch (err) {
-      setError("Server error");
+      toast.error(err?.data?.message || "Registration failed");
       console.error(err);
     }
   };
@@ -75,19 +82,14 @@ export default function Register() {
             required
           />
 
-          <button type="submit">Sign Up</button>
+          {formError && (
+            <p style={{ color: "red", textAlign: "center" }}>{formError}</p>
+          )}
+
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Signing Up..." : "Sign Up"}
+          </button>
         </form>
-
-        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
-
-        <div className="divider">
-          <span>OR</span>
-        </div>
-
-        <button className="google-btn">
-          <FcGoogle className="google-icon" />
-          Continue with Google
-        </button>
 
         <p className="login-text">
           Already have an account? <Link to="/login">Login</Link>

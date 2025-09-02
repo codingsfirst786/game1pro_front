@@ -77,6 +77,30 @@
   cursor: pointer;
 }
 
+.logout-btn {
+  background: #e63946; /* red tone */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-right: 15px;
+}
+
+.logout-btn:hover {
+  background: #d62839; /* darker red on hover */
+  transform: scale(1.05);
+}
+
+.logout-btn:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+  transform: none;
+}
+
 @media (max-width: 768px) {
   .navbar-center {
     position: absolute;

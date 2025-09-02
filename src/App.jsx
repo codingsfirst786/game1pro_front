@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login.jsx";
 import Register from "./components/Rigester.jsx";
@@ -11,9 +10,7 @@ import Withdraws from "./components/Withdrawal.jsx";
 import Purchasing from "./components/purchasing.jsx";
 import WithdrawAccount from "./components/WithdrawalAccount.jsx";
 import Settings from "./components/Settings.jsx";
-import WheelGame from "./components/Wheelgame.jsx";
 import Wheelgame from "./components/Wheelgame.jsx";
-// import Diceface from "./components/Dice.jsx";
 import DiceGame from "./components/DiceGame.jsx";
 
 const App = () => {
@@ -44,7 +41,7 @@ const App = () => {
           path="/total-wins"
           element={
             <ProtectedRoute>
-              <TotalWins/>
+              <TotalWins />
             </ProtectedRoute>
           }
         />
@@ -52,7 +49,7 @@ const App = () => {
           path="/withdraws"
           element={
             <ProtectedRoute>
-              <Withdraws/>
+              <Withdraws />
             </ProtectedRoute>
           }
         />
@@ -60,15 +57,15 @@ const App = () => {
           path="/purchasing"
           element={
             <ProtectedRoute>
-              <Purchasing/>
+              <Purchasing />
             </ProtectedRoute>
           }
         />
-         <Route
+        <Route
           path="/account"
           element={
             <ProtectedRoute>
-              <WithdrawAccount/>
+              <WithdrawAccount />
             </ProtectedRoute>
           }
         />
@@ -76,15 +73,7 @@ const App = () => {
           path="/settings"
           element={
             <ProtectedRoute>
-              <Settings/>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <WheelGame/>
+              <Settings />
             </ProtectedRoute>
           }
         />
@@ -92,7 +81,7 @@ const App = () => {
           path="/wheel"
           element={
             <ProtectedRoute>
-              <Wheelgame/>
+              <Wheelgame />
             </ProtectedRoute>
           }
         />
@@ -100,7 +89,7 @@ const App = () => {
           path="/Dice"
           element={
             <ProtectedRoute>
-              <DiceGame/>
+              <DiceGame />
             </ProtectedRoute>
           }
         />

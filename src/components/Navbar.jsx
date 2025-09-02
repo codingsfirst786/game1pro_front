@@ -1,11 +1,26 @@
 import React, { useState } from "react";
-import { FaPlus, FaBars, FaTimes } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa";
+import { FaPlus, FaBars, FaTimes, FaUserCircle } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "../Css/Navbar.css";
+import { useLogoutUserMutation } from "../Api/Slices/userApi";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // ✅ RTK Query logout hook
+  const [logoutUser, { isLoading }] = useLogoutUserMutation();
+
+  const handleLogout = async () => {
+    try {
+      const res = await logoutUser().unwrap();
+      toast.success(res?.message || "Logout successful!");
+      navigate("/login");
+    } catch (err) {
+      toast.error(err?.data?.message || "Logout failed!");
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -24,13 +39,24 @@ const Navbar = () => {
       </div>
 
       <div className="navbar-right">
+        {/* ✅ Logout button */}
+        <button
+          onClick={handleLogout}
+          disabled={isLoading}
+          className="logout-btn"
+        >
+          {isLoading ? "Logging out..." : "Logout"}
+        </button>
+
         <div className="balance-box">
           <span>956 Pkr</span>
         </div>
+
         <div className="add-more">
           <FaPlus />
           <span>Add More</span>
         </div>
+
         <Link to="/profile" className="profile-icon">
           <FaUserCircle size={28} />
         </Link>
