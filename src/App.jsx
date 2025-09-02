@@ -12,10 +12,17 @@ import WithdrawAccount from "./components/WithdrawalAccount.jsx";
 import Settings from "./components/Settings.jsx";
 import Wheelgame from "./components/Wheelgame.jsx";
 import DiceGame from "./components/DiceGame.jsx";
+import AgentsScreen from "./Agents/AgentsScreen.jsx";
+import Order from "./components/Order.jsx";
+import PaymentDetails from "./components/PaymentDetails.jsx";
+import Cashout from "./components/Cashout.jsx";
+import Navbar from "./components/Navbar.jsx";
+import AddcoinsUser from "./components/AddcoinsUser.jsx";
 
 const App = () => {
   return (
     <Router>
+    <Navbar/>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
@@ -27,7 +34,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/profile"
           element={
@@ -35,8 +41,15 @@ const App = () => {
               <Profile />
             </ProtectedRoute>
           }
+        />  
+        <Route
+          path="/agentscreen"
+          element={
+            <ProtectedRoute>
+              <AgentsScreen />
+            </ProtectedRoute>
+          }
         />
-
         <Route
           path="/total-wins"
           element={
@@ -45,11 +58,43 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+         <Route
+          path="/addcoinsUser"
+          element={
+            <ProtectedRoute>
+              <AddcoinsUser />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/withdraws"
           element={
             <ProtectedRoute>
               <Withdraws />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <Order />
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/cashout"
+          element={
+            <ProtectedRoute>
+              <Cashout />
+            </ProtectedRoute>
+          }
+        />
+            <Route
+          path="/payment-details"
+          element={
+            <ProtectedRoute>
+              <PaymentDetails />
             </ProtectedRoute>
           }
         />

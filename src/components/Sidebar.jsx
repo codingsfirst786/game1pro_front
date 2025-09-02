@@ -17,7 +17,6 @@ const Sidebar = ({ menuOpen, setMenuOpen }) => {
 
   return (
     <div className={`sidebar ${menuOpen ? "open" : ""}`}>
-        <h2 className="sidebar-heading">Menu</h2> 
       <ul>
         <li onClick={handleItemClick}>
           <Link to="/profile" className="sidebar-link"><FaUser /> Profile</Link>
@@ -30,6 +29,15 @@ const Sidebar = ({ menuOpen, setMenuOpen }) => {
         </li>
         <li onClick={handleItemClick}>
           <Link to="/purchasing" className="sidebar-link"><FaShoppingCart /> Purchased</Link>
+        </li>
+        <li onClick={handleItemClick}>
+          <Link to="/orders" className="sidebar-link"><FaUniversity /> Orders Grab</Link>
+        </li>
+        <li onClick={handleItemClick}>
+          <Link to="/cashout" className="sidebar-link"><FaUniversity /> Cash out</Link>
+        </li>
+         <li onClick={handleItemClick}>
+          <Link to="/addcoinsUser" className="sidebar-link"><FaUniversity /> Add Coins</Link>
         </li>
         <li onClick={handleItemClick}>
           <Link to="/account" className="sidebar-link"><FaUniversity /> Withdraw Accounts</Link>

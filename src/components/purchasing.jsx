@@ -27,7 +27,6 @@ export default function Purchasing() {
 
   return (
     <div className="page-wrapper">
-
     <div className="withdraw-page">
       <h1 className="withdraw-heading">Purchasing Records</h1>
 

@@ -4,12 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../Css/Navbar.css";
 import { useLogoutUserMutation } from "../Api/Slices/userApi";
+import logo from "../assets/Logo (3).png";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-
-  // ✅ RTK Query logout hook
   const [logoutUser, { isLoading }] = useLogoutUserMutation();
 
   const handleLogout = async () => {
@@ -25,7 +24,9 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <h1>Game1Pro</h1>
+        <Link to="/home">
+          <img src={logo} alt="Game1Pro" className="logo" />
+        </Link>
       </div>
 
       <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
@@ -39,7 +40,21 @@ const Navbar = () => {
       </div>
 
       <div className="navbar-right">
-        {/* ✅ Logout button */}
+        <div className="balance-box">
+          <span>956 PKR</span>
+        </div>
+
+        <Link to="/agentscreen">
+          <div className="add-more">
+            <FaPlus />
+            <span>Add More</span>
+          </div>
+        </Link>
+
+        <Link to="/profile" className="profile-icon">
+          <FaUserCircle size={28} />
+        </Link>
+
         <button
           onClick={handleLogout}
           disabled={isLoading}
@@ -47,19 +62,6 @@ const Navbar = () => {
         >
           {isLoading ? "Logging out..." : "Logout"}
         </button>
-
-        <div className="balance-box">
-          <span>956 Pkr</span>
-        </div>
-
-        <div className="add-more">
-          <FaPlus />
-          <span>Add More</span>
-        </div>
-
-        <Link to="/profile" className="profile-icon">
-          <FaUserCircle size={28} />
-        </Link>
       </div>
     </nav>
   );

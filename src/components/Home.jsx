@@ -72,7 +72,6 @@ const Home = () => {
 
   return (
     <>
-      <Navbar />
       <div className="home-container">
         <div className="main-content">
           {games.map((game, index) => (

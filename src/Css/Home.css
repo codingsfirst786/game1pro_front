@@ -1,66 +1,141 @@
 .home-container {
   display: flex;
   width: 100%;
-  min-height: calc(100vh - 60px); 
+  min-height: calc(100vh - 60px);
   padding: 20px;
+  gap: 20px;
+  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
   box-sizing: border-box;
 }
 
-
+/* Main content */
 .main-content {
   width: 70%;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  border-right: 2px solid #006633; 
-  padding-right: 20px; 
+  padding-right: 20px;
+  border-right: 2px solid #2e8b57;
   box-sizing: border-box;
 }
 
-
+/* Sidebar */
 .sidebar {
   width: 30%;
-  padding-left: 20px;
-  box-sizing: border-box;
-  background: #111; 
+  padding: 20px;
+  background: #111;
+  border-radius: 15px;
   color: #fff;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
 }
 
+.sidebar h2 {
+  text-align: center;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
 
+/* Game cards */
 .game-card {
-  background: #222;
+  background: linear-gradient(145deg, #1f1f1f, #292929);
   color: #fff;
-  border-radius: 10px;
+  border-radius: 15px;
   overflow: hidden;
   text-align: center;
-  flex: 1 1 calc(25.333% - 20px); 
-  min-width: 150px;
-  padding: 10px;
+  flex: 1 1 calc(33.333% - 20px);
+  min-width: 200px;
+  padding: 15px;
   box-sizing: border-box;
-  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  border: 2px solid transparent;
+  cursor: pointer;
 }
 
-.hover-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 0 15px #00ff88;
+.game-card:hover {
+  transform: translateY(-8px) scale(1.05);
+  border-color: #00ff88;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
 }
 
 .game-card img {
   width: 100%;
-  height: 25vh;
-  border-radius: 8px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
   margin-bottom: 10px;
 }
 
+/* Coming soon overlay */
 .coming-soon {
   background: #333;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 120px;
+  font-weight: bold;
+  border: 2px dashed #666;
+  position: relative;
+  height: 180px;
+  color: #bbb;
+}
+
+.coming-soon::after {
+  content: "COMING SOON";
+  position: absolute;
+  top: 10px;
+  right: -25px;
+  transform: rotate(45deg);
+  background: #ff4757;
+  color: #fff;
+  padding: 5px 20px;
+  font-size: 0.8rem;
+  border-radius: 5px;
   font-weight: bold;
 }
 
+/* Notifications container */
+.notifications-container {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.notification-box {
+  background: linear-gradient(135deg, #ffd700, #ffb700);
+  color: #111;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  animation: slideIn 0.5s ease;
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.6s ease;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .home-container {
     flex-direction: column;
@@ -68,47 +143,16 @@
 
   .main-content {
     width: 100%;
-    flex-direction: column;
-    gap: 15px;
     border-right: none;
     padding-right: 0;
   }
 
   .sidebar {
-    width: 100% !important;
-    padding-left: 0 !important;
+    width: 100%;
     margin-top: 20px;
-    box-sizing: border-box;
   }
 
   .game-card {
     flex: 1 1 100%;
   }
-}
-
-.sidebar {
-  width: 30%;
-  padding-left: 20px;
-  box-sizing: border-box;
-  background: #111; 
-  color: #fff;
-}
-
-.notifications-container {
-  display: flex;
-  flex-direction: column-reverse; 
-  gap: 10px;
-  max-height: 400px; 
-  overflow: hidden;
-}
-
-.notification-box {
-  background: #ae924c; 
-  color: #111;
-  padding: 12px;
-  border-radius: 8px;
-  font-weight: bold;
-  text-align: center;
-  box-shadow: 0 0 8px #b8860b;
-  transition: transform 0.3s ease, opacity 0.3s ease;
 }
