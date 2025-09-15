@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaBars, FaTimes, FaSearch, FaWallet } from "react-icons/fa";
 import Sidebar from "./Sidebar";
 import "../Css/allpages.css";
@@ -6,19 +6,39 @@ import "../Css/allpages.css";
 export default function Withdrawals() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [totalRequests, setTotalRequests] = useState(0);
+  const [totalWithdrawals, setTotalWithdrawals] = useState(0);
 
-  const totalRequests = 15;
-  const totalWithdrawals = 540;
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
 
-  const withdrawalsData = [
-    { id: 1, amount: 100, date: "2025-08-20", status: "Completed" },
-    { id: 2, amount: 50, date: "2025-08-21", status: "Pending" },
-    { id: 3, amount: 200, date: "2025-08-22", status: "Failed" },
-    { id: 4, amount: 120, date: "2025-08-19", status: "Completed" },
-    { id: 5, amount: 70, date: "2025-08-18", status: "Pending" },
-  ];
+  useEffect(() => {
+    if (!userId) return;
 
-  const filteredWithdrawals = withdrawalsData.filter((withdrawal) =>
+    const fetchWithdrawals = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/withdraw/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (data.success) {
+          setWithdrawals(data.withdrawals);
+          setTotalRequests(data.withdrawals.length);
+          const total = data.withdrawals.reduce((sum, w) => sum + w.amount, 0);
+          setTotalWithdrawals(total);
+        }
+      } catch (err) {
+        console.error("Error fetching withdrawals:", err);
+      }
+    };
+
+    fetchWithdrawals();
+  }, [userId, token]);
+
+  const filteredWithdrawals = withdrawals.filter((withdrawal) =>
     Object.values(withdrawal)
       .join(" ")
       .toLowerCase()
@@ -27,8 +47,6 @@ export default function Withdrawals() {
 
   return (
     <div className="withdraw-page">
-      <h1 className="withdraw-heading">Withdrawal Records</h1>
-
       <div
         className="withdraw-hamburger"
         onClick={() => setMenuOpen(!menuOpen)}
@@ -76,29 +94,41 @@ export default function Withdrawals() {
                 <tr>
                   <th>ID</th>
                   <th>Amount</th>
-                  <th>Date</th>
+                  <th>Bank</th>
+                  <th>Account Number</th>
+                  <th>Holder</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredWithdrawals.map((wd) => (
-                  <tr key={wd.id}>
-                    <td>{wd.id}</td>
-                    <td>${wd.amount}</td>
-                    <td>{wd.date}</td>
-                    <td
-                      className={
-                        wd.status === "Completed"
-                          ? "status success"
-                          : wd.status === "Pending"
-                          ? "status pending"
-                          : "status failed"
-                      }
-                    >
-                      {wd.status}
+                {filteredWithdrawals.length > 0 ? (
+                  filteredWithdrawals.map((wd, idx) => (
+                    <tr key={idx}>
+                      <td>{wd._id}</td>
+                      <td>${wd.amount}</td>
+                      <td>{wd.account?.bank || "N/A"}</td>
+                      <td>{wd.account?.number || "N/A"}</td>
+                      <td>{wd.account?.holder || "N/A"}</td>
+                      <td
+                        className={
+                          wd.status === "Completed"
+                            ? "status success"
+                            : wd.status === "Processing"
+                            ? "status pending"
+                            : "status failed"
+                        }
+                      >
+                        {wd.status}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: "center" }}>
+                      No Withdrawals Yet
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

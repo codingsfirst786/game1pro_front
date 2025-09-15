@@ -13,22 +13,45 @@ const AddcoinsUser = () => {
   const [history, setHistory] = useState([]);
   const [search, setSearch] = useState("");
 
-  const handleFetchUser = () => {
+  const API_BASE = "http://localhost:5000/api/v2";
+
+  // Fetch user
+  const handleFetchUser = async () => {
     if (!userId) {
       toast.error("⚠️ Please enter a User ID first!");
       return;
     }
 
-    const sampleUser = {
-      id: userId,
-      name: "John Doe",
-      image: "https://i.pravatar.cc/100?img=3",
-    };
-    setUserData(sampleUser);
-    toast.success("✅ User data fetched successfully!");
+    try {
+      const res = await fetch(`${API_BASE}/agents-v2/search/${userId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        toast.error(data.message || "User not found");
+        setUserData(null);
+        setHistory([]);
+        return;
+      }
+
+      setUserData({
+        id: data.user.userNumber,
+        name: data.user.username,
+        image: data.user.image || "https://i.pravatar.cc/100?img=3",
+      });
+
+      // Fetch full history immediately
+      await fetchUserHistory(data.user.userNumber);
+
+      toast.success("✅ User data fetched successfully!");
+    } catch (err) {
+      toast.error("❌ Error fetching user");
+    }
   };
 
-  const handleSendCoins = () => {
+  // Send coins
+  const handleSendCoins = async () => {
     if (!userData) {
       toast.error("⚠️ Please fetch a user first!");
       return;
@@ -38,22 +61,57 @@ const AddcoinsUser = () => {
       return;
     }
 
-    const newEntry = {
-      id: userData.id,
-      name: userData.name,
-      image: userData.image,
-      coins: coins,
-      payment: `$${(coins * 0.5).toFixed(2)}`,
-      date: new Date().toLocaleDateString(),
-    };
+    try {
+      const res = await fetch(`${API_BASE}/agents-v2/add-coins`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ userNumber: userData.id, amount: coins }),
+      });
+      const data = await res.json();
 
-    setHistory([newEntry, ...history]);
-    toast.success(`🎉 ${coins} coins sent to ${userData.name}!`);
+      if (!data.success) {
+        toast.error(data.message || "Failed to send coins");
+        return;
+      }
 
-    // Reset form
-    setCoins("");
-    setUserData(null);
-    setUserId("");
+      toast.success(`🎉 ${coins} coins sent to ${userData.name}!`);
+      setCoins("");
+
+      // ✅ Fetch updated history from backend
+      await fetchUserHistory(userData.id);
+    } catch (err) {
+      toast.error("❌ Error sending coins");
+    }
+  };
+
+  // Fetch history
+  const fetchUserHistory = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/agents-v2/history/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const formatted = data.history.map((h) => ({
+          id: h.userNumber,
+          name: h.username,
+          coins: h.coinsAdded,
+          image: h.image || "https://i.pravatar.cc/100?img=2",
+          payment: `$${(h.coinsAdded * 0.5).toFixed(2)}`,
+          date: new Date(h.createdAt).toLocaleString(),
+        }));
+        setHistory(formatted);
+      } else {
+        setHistory([]);
+      }
+    } catch (err) {
+      toast.error("❌ Error loading history");
+      setHistory([]);
+    }
   };
 
   const filteredHistory = history.filter(
@@ -65,30 +123,22 @@ const AddcoinsUser = () => {
   return (
     <div className="page-wrapper">
       <div className="withdraw-page">
-        <h1 className="withdraw-heading">Add Coins to User</h1>
-
-        {/* Toastify Container */}
         <ToastContainer position="top-right" autoClose={3000} />
 
-        {/* Hamburger Menu */}
         <div
           className="withdraw-hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <FaTimes /> : <FaBars />}
         </div>
-
-        {/* Overlay */}
         <div
           className={`withdraw-overlay ${menuOpen ? "show" : ""}`}
           onClick={() => setMenuOpen(false)}
         ></div>
 
         <div className="withdraw-layout">
-          {/* Sidebar */}
           <Sidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-          {/* Main Content */}
           <div className="withdraw-content">
             {/* Input Section */}
             <div className="input-section">
@@ -149,7 +199,6 @@ const AddcoinsUser = () => {
                     <th>Image</th>
                     <th>Name</th>
                     <th>Coins</th>
-                    <th>Payment</th>
                     <th>Date</th>
                   </tr>
                 </thead>
@@ -167,7 +216,6 @@ const AddcoinsUser = () => {
                         </td>
                         <td>{item.name}</td>
                         <td>{item.coins}</td>
-                        <td>{item.payment}</td>
                         <td>{item.date}</td>
                       </tr>
                     ))

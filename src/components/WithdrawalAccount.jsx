@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { FaBars, FaTimes, FaPlus, FaUniversity } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+
 import Sidebar from "./Sidebar";
 import Select from "react-select";
 import countryList from "react-select-country-list";
@@ -23,11 +25,11 @@ export default function WithdrawAccount() {
   useEffect(() => {
     if (!userId) return;
 
-    fetch(`http://localhost:3000/accounts/${userId}`)
+    fetch(`http://localhost:5000/accounts/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setAccounts(data.accounts);
+          setAccounts(data.accounts); // set the accounts in state
         } else {
           console.error("Failed to fetch accounts:", data.message);
         }
@@ -46,7 +48,7 @@ export default function WithdrawAccount() {
     };
 
     try {
-      const res = await fetch(`http://localhost:3000/accounts/${userId}`, {
+      const res = await fetch(`http://localhost:5000/accounts/${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newAccount),
@@ -68,11 +70,24 @@ export default function WithdrawAccount() {
     }
   };
 
+  const handleDelete = async (accountId) => {
+  try {
+    const res = await fetch(`http://localhost:5000/accounts/${userId}/${accountId}`, {
+      method: "DELETE",
+    });
+    const data = await res.json();
+    if (data.success) {
+      setAccounts(data.accounts); // update table
+    } else {
+      alert(data.message || "Failed to delete account");
+    }
+  } catch (err) {
+    console.error("Error deleting account:", err);
+  }
+};
   return (
     <div className="page-wrapper">
       <div className="withdraw-page">
-        <h1 className="withdraw-heading">Withdrawal Account</h1>
-
         <div
           className="withdraw-hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -140,6 +155,7 @@ export default function WithdrawAccount() {
                     <th>Account Number</th>
                     <th>Account Holder</th>
                     <th>Country</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -150,6 +166,7 @@ export default function WithdrawAccount() {
                         <td>{acc.number}</td>
                         <td>{acc.holder}</td>
                         <td>{acc.country}</td>
+                        <td><button  onClick={() => handleDelete(acc._id)}><MdDelete /></button></td>
                       </tr>
                     ))
                   ) : (

@@ -1,19 +1,11 @@
+// src/Api/Slices/userApi.js
 import { apiSlice } from "../apiSlice";
 
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    googleLogin: builder.mutation({
-      query: (data) => ({
-        url: "/auth/google",
-        method: "POST",
-        body: data,
-      }),
-      invalidatesTags: ["User"],
-    }),
-
     register: builder.mutation({
       query: (data) => ({
-        url: "/register",
+        url: "/signup", // match backend route
         method: "POST",
         body: data,
       }),
@@ -26,30 +18,6 @@ export const userApi = apiSlice.injectEndpoints({
         body: data,
       }),
       invalidatesTags: ["User"],
-    }),
-
-    logoutUser: builder.mutation({
-      query: () => ({
-        url: "/logout",
-        method: "POST",
-      }),
-      invalidatesTags: ["User"],
-    }),
-
-    forgotPassword: builder.mutation({
-      query: (data) => ({
-        url: "/forgot-password",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    resetPassword: builder.mutation({
-      query: ({ token, data }) => ({
-        url: `/reset-password/${token}`,
-        method: "POST",
-        body: data,
-      }),
     }),
 
     getProfile: builder.query({
@@ -76,12 +44,8 @@ export const userApi = apiSlice.injectEndpoints({
 });
 
 export const {
-  useGoogleLoginMutation,
   useRegisterMutation,
   useLoginUserMutation,
-  useLogoutUserMutation,
-  useForgotPasswordMutation,
-  useResetPasswordMutation,
   useGetProfileQuery,
   useUpdateProfileMutation,
 } = userApi;

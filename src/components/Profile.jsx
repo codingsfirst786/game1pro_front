@@ -1,62 +1,96 @@
 import React, { useState, useEffect } from "react";
-import { FaBars, FaTimes, FaEdit, FaUserCircle, FaCheck, FaTimesCircle } from "react-icons/fa";
+import "react-phone-input-2/lib/style.css";
+import {
+  FaBars,
+  FaTimes,
+  FaEdit,
+  FaUserCircle,
+  FaCheck,
+  FaTimesCircle,
+} from "react-icons/fa";
 import Sidebar from "./Sidebar";
 import "../Css/profile.css";
 
 export default function Profile() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [editMode, setEditMode] = useState({}); // Track which fields are being edited
-  const [formData, setFormData] = useState({ username: "", email: "" });
+  const [editMode, setEditMode] = useState({});
+  // ✅ Initialize formData with whatsappNumber
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    profilePicture: "",
+    countryCode: "+92", // default Pakistan 🇵🇰
+    whatsappNumber: "",
+  });
 
+  // ✅ Fetch user profile
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const email = localStorage.getItem("email");
-        if (!email) return;
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
-        const res = await fetch(`http://localhost:3000/profile/${email}`);
+        const res = await fetch("http://localhost:5000/api/auth/profile", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         const data = await res.json();
-
-        if (data.success) {
-          setUser(data.user);
+        if (res.ok) {
+          setUser(data);
           setFormData({
-            username: data.user.username,
-            email: data.user.email,
+            username: data.username,
+            email: data.email,
+            profilePicture: data.profilePicture || "",
+            whatsappNumber: data.whatsappNumber || "0000000", // ✅ default
           });
+        } else {
+          console.error(data.message);
         }
       } catch (err) {
-        console.error("Error fetching user data:", err);
+        console.error(err);
       }
     };
 
     fetchUserData();
   }, []);
 
-  const handleEditClick = (field) => {
-    setEditMode((prev) => ({ ...prev, [field]: true }));
-  };
+  const handleEditClick = (field) =>
+    setEditMode({ ...editMode, [field]: true });
 
-  const handleInputChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  const handleInputChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSave = async (field) => {
     try {
-      const res = await fetch(`http://localhost:3000/profile/update`, {
+      const token = localStorage.getItem("token");
+      const bodyData = {};
+
+      if (field === "username") bodyData.username = formData.username;
+      if (field === "email") bodyData.email = formData.email;
+      if (field === "profilePicture")
+        bodyData.profilePicture = formData.profilePicture;
+      if (field === "whatsappNumber")
+        bodyData.whatsappNumber = formData.whatsappNumber;
+
+      const res = await fetch("http://localhost:5000/api/auth/profile/update", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bodyData),
       });
 
       const data = await res.json();
-
       if (data.success) {
         setUser(data.user);
         setEditMode((prev) => ({ ...prev, [field]: false }));
+      } else {
+        console.error(data.message);
       }
     } catch (err) {
       console.error("Error updating profile:", err);
@@ -64,11 +98,13 @@ export default function Profile() {
   };
 
   const handleCancel = (field) => {
+    if (!user) return;
     setFormData({
       username: user.username,
       email: user.email,
+      profilePicture: user.profilePicture || "",
     });
-    setEditMode((prev) => ({ ...prev, [field]: false }));
+    setEditMode({ ...editMode, [field]: false });
   };
 
   return (
@@ -85,30 +121,18 @@ export default function Profile() {
       ></div>
 
       <div className="profile-container">
-        {/* Sidebar */}
         <Sidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-        {/* Profile Content */}
         <div className="profile-content glass-card">
-          <h2 className="content-heading">Profile Details</h2>
-
-          {/* Profile Avatar */}
-          <div className="profile-avatar">
-            <FaUserCircle className="avatar-icon" />
-            <button className="avatar-edit-btn">
-              <FaEdit />
-            </button>
-          </div>
-
+          <h2 className="content-heading">Account Details</h2>
           {user ? (
             <div className="profile-info">
               {/* Username */}
               <div className="profile-item">
-                <span className="label">👤 Name</span>
+                <span className="label">👤 Username</span>
                 {editMode.username ? (
                   <div className="edit-field">
                     <input
-                      type="text"
                       name="username"
                       value={formData.username}
                       onChange={handleInputChange}
@@ -139,7 +163,6 @@ export default function Profile() {
                 {editMode.email ? (
                   <div className="edit-field">
                     <input
-                      type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
@@ -163,20 +186,70 @@ export default function Profile() {
                   </>
                 )}
               </div>
-
+              {/* Whatsapp */}
               <div className="profile-item">
-                <span className="label">🏆 Total Wins</span>
-                <span className="value">25</span>
+                <span className="label">📱 Whatsapp With country code</span>
+                {editMode.whatsappNumber ? (
+                  <div className="edit-field">
+                    <input
+                      name="whatsappNumber"
+                      value={formData.whatsappNumber}
+                      onChange={handleInputChange}
+                    />
+                    <FaCheck
+                      className="save-icon"
+                      onClick={() => handleSave("whatsappNumber")}
+                    />
+                    <FaTimesCircle
+                      className="cancel-icon"
+                      onClick={() => handleCancel("whatsappNumber")}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <span className="value">
+                      {user.whatsappNumber || "0000000"}
+                    </span>
+                    <FaEdit
+                      className="edit-icon"
+                      onClick={() => handleEditClick("whatsappNumber")}
+                    />
+                  </>
+                )}
               </div>
 
+              {/* Coins */}
               <div className="profile-item">
-                <span className="label">💰 Total Balance</span>
-                <span className="value">$500</span>
+                <span className="label">💰 Coins</span>
+                <span className="value">{user.coins}</span>
               </div>
 
+              {/* Role */}
               <div className="profile-item">
-                <span className="label">⏳ Pending Withdrawals</span>
-                <span className="value">2 Requests</span>
+                <span className="label">🛡️ Role</span>
+                <span className="value">{user.role}</span>
+              </div>
+
+              {/* Created At */}
+              <div className="profile-item">
+                <span className="label">🗓️ Created At</span>
+                <span className="value">
+                  {new Date(user.createdAt).toLocaleString()}
+                </span>
+              </div>
+
+              {/* Updated At */}
+              <div className="profile-item">
+                <span className="label">🔄 Updated At</span>
+                <span className="value">
+                  {new Date(user.updatedAt).toLocaleString()}
+                </span>
+              </div>
+
+              {/* Account Status */}
+              <div className="profile-item">
+                <span className="label">✅ Account Status</span>
+                <span className="value">{user.status || "active"}</span>
               </div>
             </div>
           ) : (

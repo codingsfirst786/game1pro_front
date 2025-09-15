@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../Css/orders.css";
 import Sidebar from "./Sidebar";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../Css/orders.css";
 
 const PaymentDetails = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,39 +12,55 @@ const PaymentDetails = () => {
   const navigate = useNavigate();
   const order = location.state?.order;
 
-  const [copiedText, setCopiedText] = useState("");
   const [proof, setProof] = useState(null);
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
 
   if (!order) {
     return (
-      <div className="payment-container">
+      <div className="page-wrapper">
         <h2>No Order Found</h2>
       </div>
     );
   }
 
-  // Copy & show popup
   const handleCopy = (value) => {
     navigator.clipboard.writeText(value);
-    setCopiedText(value);
-    setTimeout(() => setCopiedText(""), 1000);
+    toast.info(`Copied: ${value}`);
   };
 
-  // Confirm & Pay
-  const handleUploadProof = () => {
-    if (!proof) return;
+  // Upload payment proof and confirm
+  const handleUploadProof = async () => {
+    if (!proof) {
+      toast.error("Please upload payment proof");
+      return;
+    }
 
-    // remove from orders
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    let myOrders = JSON.parse(localStorage.getItem("myOrders")) || [];
+    try {
+      const formData = new FormData();
+      formData.append("proof", proof);
+      formData.append("orderId", order._id);
+      formData.append("userId", userId);
 
-    orders = orders.filter((o) => o.id !== order.id);
-    myOrders.push(order);
+      const res = await fetch(`http://localhost:5000/api/orders/confirm-payment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-    localStorage.setItem("orders", JSON.stringify(orders));
-    localStorage.setItem("myOrders", JSON.stringify(myOrders));
-
-    navigate("/orders");
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Payment proof uploaded! Order confirmed.");
+        navigate("/orders"); // back to Orders
+      } else {
+        toast.error(data.message || "Failed to confirm payment");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong while confirming payment");
+    }
   };
 
   return (
@@ -50,40 +68,35 @@ const PaymentDetails = () => {
       <div className="withdraw-page">
         <h1 className="withdraw-heading">Payment Details</h1>
 
-        {/* Hamburger button */}
         <div className="withdraw-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FaTimes /> : <FaBars />}
         </div>
 
-        {/* Overlay */}
         <div
           className={`withdraw-overlay ${menuOpen ? "show" : ""}`}
           onClick={() => setMenuOpen(false)}
         ></div>
 
-        {/* Layout */}
         <div className="withdraw-layout">
-          {/* Sidebar */}
           <Sidebar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-          {/* Main content */}
           <div className="withdraw-content">
             <div className="withdraw-summary" style={{ flexDirection: "column", gap: "15px" }}>
               <div className="payment-card">
                 <p>
-                  <strong>Bank:</strong> {order.accountName}
-                  <span className="copy-btn" onClick={() => handleCopy(order.accountName)}>📋</span>
+                  <strong>Bank:</strong> {order.account.bank}{" "}
+                  <span className="copy-btn" onClick={() => handleCopy(order.account.bank)}>📋</span>
                 </p>
                 <p>
-                  <strong>Title:</strong> {order.accountTitle}
-                  <span className="copy-btn" onClick={() => handleCopy(order.accountTitle)}>📋</span>
+                  <strong>Title:</strong> {order.account.holder}{" "}
+                  <span className="copy-btn" onClick={() => handleCopy(order.account.holder)}>📋</span>
                 </p>
                 <p>
-                  <strong>Number:</strong> {order.accountNumber}
-                  <span className="copy-btn" onClick={() => handleCopy(order.accountNumber)}>📋</span>
+                  <strong>Number:</strong> {order.account.number}{" "}
+                  <span className="copy-btn" onClick={() => handleCopy(order.account.number)}>📋</span>
                 </p>
                 <p>
-                  <strong>Total:</strong> ${order.totalPayment}
+                  <strong>Amount:</strong> ${order.amount}
                 </p>
               </div>
 
@@ -91,19 +104,18 @@ const PaymentDetails = () => {
                 <label>Upload Payment Proof:</label>
                 <input
                   type="file"
-                  onChange={(e) => setProof(e.target.files[0])}
                   accept="image/*"
+                  onChange={(e) => setProof(e.target.files[0])}
                 />
                 <button className="pay-btn" onClick={handleUploadProof}>
                   Confirm & Pay
                 </button>
               </div>
-
-              {copiedText && <div className="copied-popup">Copied: {copiedText}</div>}
             </div>
           </div>
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

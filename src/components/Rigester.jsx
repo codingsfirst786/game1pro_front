@@ -1,3 +1,4 @@
+// src/Pages/Register.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -33,8 +34,10 @@ export default function Register() {
     try {
       const result = await registerUser({ email, username, password }).unwrap();
 
-      if (result.auth) {
-        localStorage.setItem("token", result.auth);
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("user", JSON.stringify(result));
+        localStorage.setItem("userId", result._id); 
       }
 
       toast.success("Registration successful!");
@@ -57,7 +60,6 @@ export default function Register() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-
           <input
             type="text"
             placeholder="Username"
@@ -65,7 +67,6 @@ export default function Register() {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
-
           <input
             type="password"
             placeholder="Password"
@@ -73,7 +74,6 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-
           <input
             type="password"
             placeholder="Confirm Password"

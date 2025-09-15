@@ -7,40 +7,25 @@ import "../Css/allpages.css";
 
 const Cashout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [coins, setCoins] = useState(1200);
+  const [user, setUser] = useState(null);
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState("");
-  const [orders, setOrders] = useState([]);
 
   const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
 
-  // Fetch withdrawal accounts
+  // Fetch full user data
   useEffect(() => {
     if (!userId) return;
 
-    fetch(`http://localhost:3000/accounts/${userId}`)
+    fetch(`http://localhost:5000/api/users/${userId}/full`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setAccounts(data.accounts);
-        }
+        if (data.success) setUser(data.user); // data.user has withdrawals
       })
-      .catch((err) => console.error("Error fetching accounts:", err));
-  }, [userId]);
-
-  // Fetch withdrawal orders
-  useEffect(() => {
-    if (!userId) return;
-
-    fetch(`http://localhost:3000/orders/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setOrders(data.orders);
-        }
-      })
-      .catch((err) => console.error("Error fetching orders:", err));
+      .catch((err) => console.error("Error fetching user:", err));
   }, [userId]);
 
   const handleWithdraw = async () => {
@@ -48,7 +33,7 @@ const Cashout = () => {
       toast.error("Enter a valid amount");
       return;
     }
-    if (withdrawAmount > coins) {
+    if (withdrawAmount > (user?.coins || 0)) {
       toast.error("You don’t have enough coins");
       return;
     }
@@ -57,24 +42,35 @@ const Cashout = () => {
       return;
     }
 
-    const newOrder = {
-      amount: withdrawAmount,
-      account: selectedAccount,
-      status: "Processing",
-    };
+    const accountObj = user.bankAccounts.find(
+      (acc) => acc.number === selectedAccount
+    );
 
     try {
-      const res = await fetch(`http://localhost:3000/orders/${userId}`, {
+      const res = await fetch(`http://localhost:5000/api/withdraw/${userId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newOrder),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount: withdrawAmount, account: accountObj }),
       });
 
       const data = await res.json();
 
       if (data.success) {
-        setOrders(data.orders);
-        setCoins((prev) => prev - withdrawAmount);
+        setUser((prev) => ({
+          ...prev,
+          coins: prev.coins - withdrawAmount,
+          withdrawals: [
+            ...(prev.withdrawals || []),
+            {
+              amount: withdrawAmount,
+              account: accountObj,
+              status: "Processing",
+            },
+          ],
+        }));
         setWithdrawAmount("");
         setSelectedAccount("");
         toast.success("Withdrawal placed successfully!");
@@ -90,8 +86,6 @@ const Cashout = () => {
   return (
     <div className="page-wrapper">
       <div className="withdraw-page">
-        <h1 className="withdraw-heading">Cashout</h1>
-
         {/* Hamburger Menu */}
         <div
           className="withdraw-hamburger"
@@ -112,7 +106,7 @@ const Cashout = () => {
           <div className="withdraw-content">
             {/* Coins Circle */}
             <div className="coins-circle">
-              <span>{coins}</span>
+              <span>{user?.coins || 0}</span>
               <p>Total Coins</p>
             </div>
 
@@ -130,8 +124,8 @@ const Cashout = () => {
                 onChange={(e) => setSelectedAccount(e.target.value)}
               >
                 <option value="">Select Bank Account</option>
-                {accounts.map((acc, index) => (
-                  <option key={index} value={acc.number}>
+                {user?.bankAccounts?.map((acc, idx) => (
+                  <option key={idx} value={acc.number}>
                     {acc.bank} - {acc.number} ({acc.holder})
                   </option>
                 ))}
@@ -149,16 +143,20 @@ const Cashout = () => {
                 <thead>
                   <tr>
                     <th>Amount</th>
-                    <th>Account</th>
+                    <th>Bank</th>
+                    <th>Account Number</th>
+                    <th>Holder</th>
                     <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.length > 0 ? (
-                    orders.map((order, idx) => (
+                  {user?.withdrawals?.length > 0 ? (
+                    user.withdrawals.map((order, idx) => (
                       <tr key={idx}>
                         <td>{order.amount}</td>
-                        <td>{order.account}</td>
+                        <td>{order.account?.bank || "N/A"}</td>
+                        <td>{order.account?.number || "N/A"}</td>
+                        <td>{order.account?.holder || "N/A"}</td>
                         <td
                           className={
                             order.status === "Completed"
@@ -172,7 +170,7 @@ const Cashout = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" style={{ textAlign: "center" }}>
+                      <td colSpan="5" style={{ textAlign: "center" }}>
                         No Withdrawals Yet
                       </td>
                     </tr>

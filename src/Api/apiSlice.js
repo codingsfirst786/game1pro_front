@@ -1,12 +1,17 @@
+// src/Api/apiSlice.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
-// https://spinwheelgamebackend-production.up.railway.app/api/v1/
 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/v1/",
-    credentials: "include",
+    baseUrl: "http://localhost:5000/api/auth", // backend base URL
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["User"],
   endpoints: () => ({}),
