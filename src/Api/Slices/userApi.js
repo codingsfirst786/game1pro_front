@@ -3,6 +3,15 @@ import { apiSlice } from "../apiSlice";
 
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    googleLogin: builder.mutation({
+      query: (data) => ({
+        url: "/auth/google",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
     register: builder.mutation({
       query: (data) => ({
         url: "/signup", // match backend route
@@ -44,6 +53,7 @@ export const userApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useGoogleLoginMutation,
   useRegisterMutation,
   useLoginUserMutation,
   useGetProfileQuery,
