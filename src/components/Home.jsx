@@ -6,14 +6,16 @@ import img1 from "../assets/img1.png";
 import img2 from "../assets/img2.png";
 import img3 from "../assets/img3.png";
 import img4 from "../assets/img4.png";
+import img5 from "../assets/img5.gif";
+import img6 from "../assets/img6.gif";
 
 const games = [
   { id: 1, title: "Zoo Roullete", img: img1, path: "/roullete" },
   { id: 2, title: "Lucky Dice", img: img2, path: "/dice" },
   { id: 3, title: "Aviator Crash", img: img3, path: "/Aviator" },
   { id: 4, title: "Lucky Spin", img: img4, path: "/spinlucky" },
-  { id: 5, title: "Battle Arena", path: "/battlearena" },
-  { id: 6, title: "Treasure Hunt", path: "/treasurehunt" },
+  { id: 5, title: "Cricket Bet", img: img5, path: "/cricketarena" },
+  { id: 6, title: "Teen Patti", img: img6, path: "/teenpatti" },
   { id: 7, title: "Dragon Quest", path: "/luckydice" },
   { id: 8, title: "Crypto Spin", path: "/cryptospin" },
   { id: 9, title: "Jackpot Frenzy", path: "/jackpotfrenzy" },
@@ -54,7 +56,7 @@ const Home = () => {
         {games.map((game, index) => (
           <div
             key={game.id}
-            className={`game-card ${index < 4 ? "hover-card" : "coming-soon"}`}
+            className={`game-card ${index < 6 ? "hover-card" : "coming-soon"}`}
             onClick={() => game.path && handleGameClick(game.path)}
             style={{ cursor: game.path ? "pointer" : "default" }}
           >
@@ -70,7 +72,8 @@ const Home = () => {
           {notifications.map((note) => (
             <div key={note.id} className="notification-box">
               {/* ✅ show shortened ID and amount */}
-              {String(note.id).slice(0, 4)}...{String(note.id).slice(-4)}  won {note.amount}
+              {String(note.id).slice(0, 4)}...{String(note.id).slice(-4)} won{" "}
+              {note.amount}
             </div>
           ))}
         </div>

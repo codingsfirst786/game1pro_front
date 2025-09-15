@@ -1,0 +1,116 @@
+.balancefield {
+  background-color: #10b981;
+  width: 50%;
+  color: #fff;
+  font-weight: bold;
+  font-size: 20px;
+  padding: 0.25rem 0.25rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  box-shadow: 0 0 14px #10b981aa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.animated-border {
+  position: relative;
+  border-radius: 9999px;
+  padding: 4px; /* border thickness */
+  overflow: hidden;
+}
+
+.animated-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    #facc15,
+    #10b981,
+    #f97316,
+    #3b82f6,
+    #facc15
+  );
+  animation: spin-border 6s linear infinite; /* default slow spin */
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.animated-border.glow::before {
+  opacity: 1; /* only show while rolling */
+  animation: spin-border 1.5s linear infinite; /* faster spin on roll */
+  box-shadow: 0 0 20px #facc1588, 0 0 35px #10b98155;
+}
+
+.animated-border-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes spin-border {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.custom-vox3::-webkit-scrollbar {
+  width: 12px;
+}
+
+.custom-vox3::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05); /* subtle dark track */
+  border-radius: 10px;
+  margin: 5px;
+}
+
+.custom-vox3::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    #facc15,
+    #10b981
+  ); /* yellow to green gradient like buttons/borders */
+  border-radius: 10px;
+  border: 3px solid #1e293b; /* match modal bg */
+}
+
+.custom-vox3 ul::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.custom-vox3 ul::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.custom-vox3 ul::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    #facc15,
+    #10b981
+  ); /* match main scrollbar */
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+.custom-vox3 ul::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #10b981,
+    #facc15
+  ); /* hover gradient inverted */
+}

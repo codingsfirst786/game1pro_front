@@ -91,7 +91,10 @@ const DiceGame = ({ userData }) => {
     const equalChance = Math.random();
     if (equalChance < 0.05) {
       total = 7;
-      setDice([Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1]);
+      setDice([
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1,
+      ]);
     } else {
       const d1 = Math.floor(Math.random() * 6) + 1;
       const d2 = Math.floor(Math.random() * 6) + 1;
@@ -171,7 +174,7 @@ const DiceGame = ({ userData }) => {
   };
 
   return (
-    <div className="min-h-[89vh] flex items-center justify-center bg-gradient-to-tr from-[#0c0f0f] via-[#0d1a16] to-[#0c0f0f] text-white py-6">
+    <div className="min-h-[89vh] flex items-center justify-center bg-gradient-to-tr from-[#0c0f0f] via-[#0d1a16] to-[#0c0f0f] text-white py-3">
       <div
         ref={wrapperRef}
         style={{ transform: `scale(${scale})`, transformOrigin: "center" }}
@@ -235,7 +238,7 @@ const DiceGame = ({ userData }) => {
 
         {/* Actions */}
         <div className="flex Actions">
-              <button
+          <button
             onClick={() => setShowHistory(true)}
             title="Game History"
             className="w-10 h-10 bg-[#1f2937] border border-[#facc15] text-white rounded-xl flex items-center justify-center hover:shadow-[0_0_14px_#facc15aa] transition-all"

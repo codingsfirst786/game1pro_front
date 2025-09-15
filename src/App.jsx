@@ -1,9 +1,5 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
-import { useEffect } from "react";   // ✅ Import useEffect
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react"; // ✅ Import useEffect
 import { toast } from "react-toastify"; // ✅ Import toast
 import Login from "./components/Login.jsx";
 import Register from "./components/Rigester.jsx";
@@ -28,6 +24,8 @@ import AudioProvider from "./context/AudioProvider.jsx";
 import Gamerules from "./components/Gamerules.jsx";
 import Roullete from "./Roullete/Roullete.jsx";
 import Luckyspin from "./LuckySpin/Luckyspin.jsx";
+import BattleArenapage from "./BattleArena/BattleArenapage.jsx";
+import Teenpatti from "./TeenPatti/Teenpatti.jsx";
 
 // Layout component to include Navbar for protected routes
 const Layout = ({ children }) => {
@@ -70,135 +68,135 @@ const App = () => {
   }, []);
 
   return (
-     <AudioProvider>
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Register />} />
+    <AudioProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Register />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Home />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Profile />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-         <Route
-          path="/game-rules"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Gamerules />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Routes */}
           <Route
-          path="/roullete"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Roullete />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-             <Route
-          path="/spinlucky"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Luckyspin />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/agentscreen"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AgentsScreen />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/total-wins"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <TotalWins />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/addcoinsUser"
-          element={
-            <ProtectedRoute roles={["agent"]}>
-              <Layout>
-                <AddcoinsUser />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/withdraws"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Withdraws />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute roles={["agent"]}>
-              <Layout>
-                <Order />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/cashout"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Cashout />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/payment-details"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <PaymentDetails />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        {/* <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Home />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Profile />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/game-rules"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Gamerules />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/roullete"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Roullete />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/spinlucky"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Luckyspin />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agentscreen"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AgentsScreen />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/total-wins"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <TotalWins />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/addcoinsUser"
+            element={
+              <ProtectedRoute roles={["agent"]}>
+                <Layout>
+                  <AddcoinsUser />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/withdraws"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Withdraws />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute roles={["agent"]}>
+                <Layout>
+                  <Order />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cashout"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Cashout />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment-details"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PaymentDetails />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          {/* <Route
           path="/purchasing"
           element={
             <ProtectedRoute>
@@ -208,51 +206,71 @@ const App = () => {
             </ProtectedRoute>
           }
         /> */}
-        <Route
-          path="/account"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <WithdrawAccount />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Settings />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dice"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <DiceGame />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/Aviator"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AviatorPage />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <WithdrawAccount />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Settings />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dice"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <DiceGame />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Aviator"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AviatorPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cricketarena"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <BattleArenapage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teenpatti"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Teenpatti />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Redirect unknown paths */}
-        <Route path="*" element={<Login />} />
-      </Routes>
-    </Router>
+          {/* Redirect unknown paths */}
+          <Route path="*" element={<Login />} />
+        </Routes>
+      </Router>
     </AudioProvider>
   );
 };
