@@ -1,62 +1,53 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
+// LuckyWheel.jsx
+import { useState, useMemo, useEffect } from "react";
+import { toast } from "react-toastify";
 import "./LuckyWheel.css";
 
-/* 24-slice distribution */
-const SPEC = {
-  "2x": 4,
-  "3x": 4,
-  "4x": 4,
-  "5x": 3,
-  "7x": 3,
-  "10x": 2,
-  "15x": 1,
-  "20x": 1,
-  "25x": 1,
-  "0x": 1,
-};
-
-const toMult = (label) => parseInt(label.replace("x", ""), 10) || 0;
-const viewLabel = (s) => (s === "0x" ? "0x" : `x${toMult(s)}`);
-
-function buildPool() {
-  const out = [];
-  Object.entries(SPEC).forEach(([label, n]) => {
-    for (let i = 0; i < n; i++) out.push(label);
-  });
-  return out;
-}
-function shuffle(a) {
-  const arr = a.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = (Math.random() * (i + 1)) | 0;
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-const buildSegments = () => shuffle(buildPool());
-
 export default function LuckyWheel() {
-  const SEGMENTS = useMemo(buildSegments, []);
-  const sliceAngle = 360 / SEGMENTS.length; // 15°
+  const segmentsSpec = {
+    "2x": 4,
+    "3x": 4,
+    "4x": 4,
+    "5x": 3,
+    "7x": 3,
+    "10x": 2,
+    "15x": 1,
+    "20x": 1,
+    "25x": 1,
+    "0x": 1,
+  };
 
-  // ===== Balance & betting =====
-  const [balance, setBalance] = useState(0); // real balance (server)
-  const [selectedChip, setSelectedChip] = useState(null);
-  const [selectedBet, setSelectedBet] = useState(null);
+  const toMult = (label) => parseInt(label.replace("x", ""), 10) || 0;
+  const viewLabel = (s) => (s === "0x" ? "0x" : `x${toMult(s)}`);
 
-  // ===== Wheel state =====
-  const [spinning, setSpinning] = useState(false);
+  // build wheel once
+  const segments = useMemo(() => {
+    let segs = Object.entries(segmentsSpec).flatMap(([label, count]) =>
+      Array(count).fill(label)
+    );
+    return segs
+      .map((val) => ({ val, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ val }) => val);
+  }, []);
+
+  const segCount = segments.length;
+  const anglePerSeg = 360 / segCount;
+
+  // state
   const [rotation, setRotation] = useState(0);
-  const [result, setResult] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [winIndex, setWinIndex] = useState(null); // only this slice's arc turns green
+  const [spinning, setSpinning] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const [selectedBet, setSelectedBet] = useState(null);
+  const [selectedChip, setSelectedChip] = useState(null);
+  const [winningIndex, setWinningIndex] = useState(null);
 
-  // ========== FETCH REAL BALANCE ON MOUNT ==========
+  // load balance
   useEffect(() => {
     (async () => {
       try {
         const token = localStorage.getItem("token");
+        if (!token) return;
         const res = await fetch("http://localhost:5000/api/auth/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -70,189 +61,271 @@ export default function LuckyWheel() {
     })();
   }, []);
 
-const spin = () => {
-  if (spinning) return;
-  if (!selectedChip || !selectedBet) return toast.error("Select a chip and multiplier first.");
-  if (selectedChip < 1) return toast.error("Invalid chip amount.");
-  if (balance < selectedChip) return toast.error("Insufficient balance.");
+  // spin
+  const spinWheel = () => {
+    if (spinning) return;
+    if (!selectedChip || !selectedBet)
+      return toast.error("Select a chip and multiplier first.");
+    if (selectedChip < 1) return toast.error("Invalid chip amount.");
+    if (balance < selectedChip) return toast.error("Insufficient balance.");
 
-  toast(`🎲 Bet ${selectedChip} on ${viewLabel(selectedBet)}`);
-  setSpinning(true);
-  setWinIndex(null);
+    toast(`🎲 Bet ${selectedChip} on ${selectedBet}`);
 
-  const targetIndex = Math.floor(Math.random() * SEGMENTS.length);
-  const fullSpins = 5;
-  const finalRotation =
-    360 * fullSpins + (360 - targetIndex * sliceAngle) - sliceAngle / 2;
+    // clear old highlight immediately
+    setWinningIndex(null);
+    setSpinning(true);
 
-  setRotation(finalRotation);
+    // random spins and stop
+    const randomSpins = 5 + Math.floor(Math.random() * 5);
+    const randomStop = Math.random() * 360;
+    const finalRotation = rotation + randomSpins * 360 + randomStop;
 
-  const duration = 4400;
-  setTimeout(async () => {
-    const winLabel = SEGMENTS[targetIndex];
-    setResult(winLabel);
-    setHistory((h) => [winLabel, ...h].slice(0, 8));
+    setRotation(finalRotation);
 
-    setWinIndex(targetIndex);
-    setTimeout(() => setWinIndex(null), 3000);
+    const duration = 6000;
+    setTimeout(async () => {
+      // calculate where the wheel stopped
+      const normalized = ((finalRotation % 360) + 360) % 360;
+      const pointerAngle = 270; // 12 o’clock
+      const relative = (pointerAngle - normalized + 360) % 360;
+      const index = Math.floor(relative / anglePerSeg) % segCount;
 
-    const isWin = winLabel === selectedBet && winLabel !== "0x";
-    const profit = isWin ? selectedChip * toMult(winLabel) : 0;
-    const newBalance = isWin ? balance + profit : balance - selectedChip;
+      // ✅ only now highlight the winning segment
+      setWinningIndex(index);
 
-    // show outcome
-    toast[isWin ? "success" : "error"](
-      isWin
-        ? `🎉 Won ${profit} PKR`
-        : `😢 Lost ${selectedChip} PKR — Winner: ${viewLabel(winLabel)}`
-    );
+      const winLabel = segments[index];
+      const isWin = winLabel === selectedBet && winLabel !== "0x";
+      const profit = isWin ? selectedChip * toMult(winLabel) : 0;
+      const newBalance = isWin ? balance + profit : balance - selectedChip;
 
-    // optimistic UI
-    setBalance(newBalance);
+      toast[isWin ? "success" : "error"](
+        isWin
+          ? `🎉 Won ${profit} PKR`
+          : `😢 Lost ${selectedChip} PKR — Winner: ${winLabel}`
+      );
 
-    // POST using EXACT dice payload shape
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/game/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          bet: selectedBet,          // e.g. "2x"
-          betAmount: selectedChip,   // stake
-          dice: [],                  // <-- REQUIRED by your API (dice game sends an array)
-          result: isWin ? "Win" : "Loss",
-          amount: isWin ? profit : -selectedChip,
-        }),
-      });
+      setBalance(newBalance);
 
-      // Try to parse server message even on 400
-      let data = null;
-      try { data = await res.json(); } catch {}
-      if (!res.ok) {
-        toast.error(data?.message || `Server rejected (HTTP ${res.status}).`);
-        // revert optimistic update
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:5000/api/game/add", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            bet: selectedBet,
+            betAmount: selectedChip,
+            dice: [],
+            result: isWin ? "Win" : "Loss",
+            amount: isWin ? profit : -selectedChip,
+          }),
+        });
+
+        let data = null;
+        try {
+          data = await res.json();
+        } catch {
+          // ignore
+        }
+
+        if (!res.ok) {
+          toast.error(data?.message || `Server error (HTTP ${res.status})`);
+          setBalance(balance); // rollback
+        } else if (typeof data?.coins === "number") {
+          setBalance(data.coins); // trust backend
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Network/server error updating game.");
         setBalance(balance);
-      } else {
-        // if backend returns fresh coins, trust it
-        if (typeof data?.coins === "number") setBalance(data.coins);
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Network/server error updating game.");
-      setBalance(balance); // revert on error
-    }
 
-    setSpinning(false);
-  }, duration);
-};
+      setSpinning(false);
+    }, duration);
+  };
+
+  // segment path
+  const radius = 180;
+  const center = 200;
+  const createPath = (i) => {
+    const startAngle = (i * anglePerSeg * Math.PI) / 180;
+    const endAngle = ((i + 1) * anglePerSeg * Math.PI) / 180;
+    const x1 = center + radius * Math.cos(startAngle);
+    const y1 = center + radius * Math.sin(startAngle);
+    const x2 = center + radius * Math.cos(endAngle);
+    const y2 = center + radius * Math.sin(endAngle);
+    return `M${center},${center} L${x1},${y1} A${radius},${radius} 0 0,1 ${x2},${y2} Z`;
+  };
 
   return (
-    <div className="wheel-wrap">
-      {/* Balance */}
-      <div className="top">
-        <div className="balance">
-          <span>💰 Balance</span>
-          <strong>{balance.toLocaleString()}</strong>
-        </div>
-      </div>
-
-      {/* Wheel Stage */}
-      <div className="stage" aria-label="Lucky Wheel">
-        {/* continuous animated border */}
-        <div className="halo outer" aria-hidden />
-        <div className="halo inner" aria-hidden />
-        <div className="bulbs" aria-hidden>
-          {Array.from({ length: 36 }).map((_, i) => (
-            <span
-              key={i}
-              style={{
-                transform: `rotate(${(360 / 36) * i}deg) translateY(calc(var(--R) * -1))`,
-              }}
-            />
-          ))}
+    <div className="game-layout">
+      {/* Left Controls */}
+      <div className="left-panel">
+        {/* controls moved here but unchanged */}
+        <div className="card">
+          <div className="title">Choose Multiplier</div>
+          <div className="mults">
+            {["2x", "3x", "4x", "5x", "7x", "10x", "15x", "20x", "25x"].map(
+              (m) => (
+                <button
+                  key={m}
+                  className={`pillBtn m-${m.replace("x", "")}${
+                    selectedBet === m ? " active" : ""
+                  }`}
+                  onClick={() => setSelectedBet(m)}
+                >
+                  {viewLabel(m)}
+                </button>
+              )
+            )}
+          </div>
         </div>
 
-        {/* pointer */}
-        <div className="pointer" aria-hidden />
-
-        {/* disc */}
-        <div
-          className="wheel"
-          style={{
-            transform: `rotate(${rotation}deg)`,
-            transition: spinning
-              ? "transform 4.4s cubic-bezier(.17,.77,.18,1.02)"
-              : "none",
-          }}
-        >
-          {SEGMENTS.map((label, i) => (
-            <div
-              key={`${label}-${i}`}
-              className="slice"
-              style={{ transform: `rotate(${i * sliceAngle}deg)` }}
-            >
-              {/* ARC BAND (curved). Only this changes color on win */}
-              <div
-                className={`arc val-${toMult(label)}${
-                  winIndex === i ? " won" : ""
-                }`}
-                style={{ transform: `rotate(${sliceAngle / 2}deg)` }}
-              />
-              {/* rim label */}
-              <div
-                className="lbl"
-                style={{ transform: `rotate(${sliceAngle / 2}deg)` }}
+        <div className="card">
+          <div className="title">Select Chip</div>
+          <div className="chips">
+            {[20, 100, 300, 800, 3000, 10000].map((v) => (
+              <button
+                key={v}
+                className={`chip ${selectedChip === v ? "active" : ""}`}
+                onClick={() => setSelectedChip(v)}
+                aria-label={`Chip ${v}`}
               >
-                {viewLabel(label)}
-              </div>
-              <div className="shine" />
-            </div>
-          ))}
+                <span className="rim" />
+                <span className="dash" />
+                <span className="core">{v}</span>
+                <span className="sheen" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Center Wheel (your code untouched) */}
+      <div className="center-panel">
+        <div className="wheel-container">
+          {/* pointer */}
+          <div className="pointer" />
+
+          <div className="wheel-wrapper">
+            <svg
+              viewBox="0 0 400 400"
+              className="wheel"
+              style={{
+                transform: `rotate(${rotation}deg)`,
+              }}
+            >
+              {/* outer rim */}
+              <circle
+                cx="200"
+                cy="200"
+                r="188"
+                fill="none"
+                className="outer-rim"
+              />
+
+              {/* bulbs */}
+              {Array.from({ length: 60 }).map((_, i) => {
+                const angle = (i * 360) / 60;
+                const rad = (angle * Math.PI) / 180;
+                const x = 200 + 188 * Math.cos(rad);
+                const y = 200 + 188 * Math.sin(rad);
+                return (
+                  <circle
+                    key={i}
+                    cx={x}
+                    cy={y}
+                    className="bulb"
+                    style={{ animationDelay: `${i * 0.05}s` }}
+                  />
+                );
+              })}
+
+              {/* gradient defs */}
+              <defs>
+                <radialGradient id="goldRim" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#fff8d9" />
+                  <stop offset="40%" stopColor="#ffd700" />
+                  <stop offset="100%" stopColor="#b8860b" />
+                </radialGradient>
+                <radialGradient id="gold">
+                  <stop offset="0%" stopColor="#fff7b2" />
+                  <stop offset="100%" stopColor="#d4af37" />
+                </radialGradient>
+                <linearGradient
+                  id="shinyText"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop offset="0%" stopColor="#fff" />
+                  <stop offset="40%" stopColor="#ffe066" />
+                  <stop offset="60%" stopColor="#ffd700" />
+                  <stop offset="100%" stopColor="#fff" />
+                </linearGradient>
+              </defs>
+
+              {/* segments */}
+              {segments.map((val, i) => (
+                <g
+                  key={i}
+                  className={winningIndex === i ? "segment active" : "segment"}
+                >
+                  <path
+                    d={createPath(i)}
+                    fill={i % 2 === 0 ? "#6a0dad" : "#8000c0"}
+                    stroke="gold"
+                    strokeWidth="2"
+                  />
+                  <text
+                    x={200}
+                    y={200}
+                    transform={`rotate(${
+                      i * anglePerSeg + anglePerSeg / 2
+                    } 200 200) translate(150 0)`}
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    fontSize="16"
+                    fill="#fff"
+                    fontWeight="bold"
+                  >
+                    {val}
+                  </text>
+                </g>
+              ))}
+
+              {/* center hub */}
+              <circle
+                cx="200"
+                cy="200"
+                r="25"
+                fill="url(#gold)"
+                stroke="white"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Balance */}
+      <div className="right-panel">
+        <div className="balance-card">
+          <label>Total Balance</label>
+          <input
+            type="text"
+            value={balance?.toLocaleString() || "0"}
+            readOnly
+            className="balance-input"
+          />
         </div>
 
-        <button className="hub" onClick={spin} disabled={spinning}>
-          {spinning ? "..." : "SPIN"}
+        {/* spin button */}
+        <button onClick={spinWheel} disabled={spinning} className="spin-btn">
+          {spinning ? "Spinning..." : "Spin"}
         </button>
-      </div>
-
-      {/* Controls */}
-      <div className="card">
-        <div className="title">Choose Multiplier</div>
-        <div className="mults">
-          {["2x", "3x", "4x", "5x", "7x", "10x", "15x", "20x", "25x"].map((m) => (
-            <button
-              key={m}
-              className={`pillBtn m-${m.replace("x", "")}${
-                selectedBet === m ? " active" : ""
-              }`}
-              onClick={() => setSelectedBet(m)}
-            >
-              {viewLabel(m)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="title">Select Chip</div>
-        <div className="chips">
-          {[20, 100, 300, 800, 3000, 10000].map((v) => (
-            <button
-              key={v}
-              className={`chip ${selectedChip === v ? "active" : ""}`}
-              onClick={() => setSelectedChip(v)}
-              aria-label={`Chip ${v}`}
-            >
-              <span className="rim" />
-              <span className="dash" />
-              <span className="core">{v}</span>
-              <span className="sheen" />
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );
