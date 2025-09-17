@@ -80,30 +80,30 @@ body {
 }
 
 .wheel-wrapper {
-  width: 400px; /* same as svg width */
-  height: 400px; /* same as svg height */
-  overflow: hidden; /* hide any "spill" while rotating */
+  width: 400px;
+  height: 400px;
+  overflow: hidden;
   position: relative;
 }
 .wheel {
-  width: 400px; /* same as svg width */
-  height: 400px; /* same as svg height */
+  width: 400px;
+  height: 400px;
   transform-origin: 50% 50%;
   display: block;
   border-radius: 50%;
-  transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1); /* ease-out spin */
+  transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .segment.active path {
-  fill: #28a745 !important; /* elegant emerald green */
-  stroke: #ffd700; /* gold outline */
+  fill: #28a745 !important;
+  stroke: #ffd700;
   stroke-width: 3px;
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
   transition: all 0.3s ease-in-out;
 }
 
 .segment.active text {
-  fill: url(#shinyText); /* gradient fill */
+  fill: url(#shinyText);
   font-size: 20px;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -111,7 +111,6 @@ body {
   animation: shineMove 2s linear infinite;
 }
 
-/* shine animation */
 @keyframes shineMove {
   0% {
     fill: url(#shinyText);
@@ -145,7 +144,6 @@ body {
   z-index: 10;
 }
 
-/* ✨ Optional: small golden screw at the base of the pointer */
 .pointer::after {
   content: "";
   position: absolute;
@@ -175,30 +173,41 @@ body {
 
 .outer-rim {
   stroke: url(#goldRim);
-  stroke-width: 28; /* thicker for premium look */
+  stroke-width: 28;
   filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.95));
 }
 
-/* Bulbs – smaller + more glowing */
+/* Bulbs – glowing chasing effect */
 .bulb {
   fill: #ffd700;
   stroke: #fff8d1;
   stroke-width: 1;
-  r: 4; /* smaller bulbs */
-  filter: drop-shadow(0 0 3px #ffd700);
-  animation: bulb-chase 2.5s linear infinite;
+  r: 4;
+  filter: drop-shadow(0 0 4px #ffd700);
+  animation: bulb-chase 1.5s linear infinite;
 }
 
-/* Smooth chasing lights around wheel */
+/* Chasing effect via brightness/opacity */
 @keyframes bulb-chase {
-  0%,
-  100% {
+  0% {
     fill: #ffd700;
-    filter: drop-shadow(0 0 6px #ffd700);
+    filter: drop-shadow(0 0 4px #ffd700);
+    opacity: 0.3;
+  }
+  25% {
+    fill: #fffbe8;
+    filter: drop-shadow(0 0 12px #fffbe8);
+    opacity: 1;
   }
   50% {
-    fill: #fffbe8;
-    filter: drop-shadow(0 0 12px #fff8d1);
+    fill: #ffd700;
+    filter: drop-shadow(0 0 4px #ffd700);
+    opacity: 0.3;
+  }
+  100% {
+    fill: #ffd700;
+    filter: drop-shadow(0 0 4px #ffd700);
+    opacity: 0.3;
   }
 }
 
@@ -410,6 +419,7 @@ body {
 
   .center-panel {
     grid-area: center;
+    padding: 0px 0px 0px 40px;
   }
   .left-panel {
     grid-area: left;
@@ -418,7 +428,19 @@ body {
     grid-area: right;
   }
 
-  /* center panel stays on top */
+  .center-panel .spin-btn {
+    height: 50px;
+    min-height: 50px;
+    max-height: 50px;
+    padding: 0 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    position: relative;
+    top: 0;
+  }
+
   .center-panel {
     order: -1;
   }
@@ -482,7 +504,6 @@ body {
 
 /* Small phones (≤ 480px) */
 @media (max-width: 480px) {
-  /* stack all panels vertically */
   .game-layout {
     display: flex;
     flex-direction: column;
@@ -492,10 +513,9 @@ body {
     width: 100%;
     box-sizing: border-box;
     background: radial-gradient(circle at center, #0b0f16, #05080f);
-    overflow-x: hidden; /* prevent horizontal scroll */
+    overflow-x: hidden;
   }
 
-  /* left, center, right panels full width */
   .left-panel,
   .center-panel,
   .right-panel {
@@ -504,18 +524,16 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px; /* optional spacing between elements */
+    gap: 12px;
     box-sizing: border-box;
   }
 
-  /* center panel adjustments */
   .center-panel {
     flex: none;
     display: flex;
     justify-content: center;
   }
 
-  /* wheel container smaller */
   .wheel-container {
     width: 260px;
     max-width: 100%;
@@ -527,7 +545,7 @@ body {
   }
 
   .wheel-wrapper {
-    width: 240px; /* scaled down */
+    width: 240px;
     height: 240px;
     max-width: 100%;
     overflow: hidden;
@@ -535,7 +553,7 @@ body {
   }
 
   .wheel {
-    width: 240px; /* match wrapper */
+    width: 240px;
     height: 240px;
     transform-origin: 50% 50%;
     display: block;
@@ -543,7 +561,6 @@ body {
     transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
   }
 
-  /* pointer adjustments */
   .pointer {
     top: -8px;
     border-left: 14px solid transparent;
@@ -559,7 +576,6 @@ body {
     top: -6px;
   }
 
-  /* multiplier pills & chips layout */
   .mults,
   .chips {
     justify-content: center;
@@ -567,7 +583,6 @@ body {
     flex-wrap: wrap;
   }
 
-  /* smaller buttons & chips */
   .pillBtn {
     font-size: 11px;
     padding: 5px 10px;
@@ -578,7 +593,6 @@ body {
     font-size: 11px;
   }
 
-  /* spin button smaller */
   .spin-btn {
     max-width: 160px;
     font-size: 16px;

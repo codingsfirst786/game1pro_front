@@ -3,32 +3,58 @@ import { useState, useMemo, useEffect } from "react";
 import { toast } from "react-toastify";
 import "./LuckyWheel.css";
 
-export default function LuckyWheel() {
-  const segmentsSpec = {
-    "2x": 4,
-    "3x": 4,
-    "4x": 4,
-    "5x": 3,
-    "7x": 3,
-    "10x": 2,
-    "15x": 1,
-    "20x": 1,
-    "25x": 1,
-    "0x": 1,
-  };
+const segmentsSpec = {
+  "2x": 4,
+  "3x": 4,
+  "4x": 4,
+  "5x": 3,
+  "7x": 3,
+  "10x": 2,
+  "15x": 1,
+  "20x": 1,
+  "25x": 1,
+  "0x": 1,
+};
 
+export default function LuckyWheel() {
   const toMult = (label) => parseInt(label.replace("x", ""), 10) || 0;
   const viewLabel = (s) => (s === "0x" ? "0x" : `x${toMult(s)}`);
 
-  // build wheel once
   const segments = useMemo(() => {
+    const saved = localStorage.getItem("wheelSegments");
+    if (saved) return JSON.parse(saved);
+
     let segs = Object.entries(segmentsSpec).flatMap(([label, count]) =>
       Array(count).fill(label)
     );
-    return segs
-      .map((val) => ({ val, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ val }) => val);
+
+    const shuffleNoAdjacent = (array) => {
+      let result = [];
+      let counts = {};
+
+      array.forEach((val) => (counts[val] = (counts[val] || 0) + 1));
+
+      while (result.length < array.length) {
+        const candidates = Object.keys(counts).filter(
+          (key) => counts[key] > 0 && key !== result[result.length - 1]
+        );
+        if (candidates.length === 0) {
+          candidates.push(...Object.keys(counts).filter((k) => counts[k] > 0));
+        }
+
+        const choice =
+          candidates[Math.floor(Math.random() * candidates.length)];
+        result.push(choice);
+        counts[choice]--;
+      }
+
+      return result;
+    };
+
+    const shuffled = shuffleNoAdjacent(segs);
+    localStorage.setItem("wheelSegments", JSON.stringify(shuffled));
+
+    return shuffled;
   }, []);
 
   const segCount = segments.length;
@@ -42,7 +68,6 @@ export default function LuckyWheel() {
   const [selectedChip, setSelectedChip] = useState(null);
   const [winningIndex, setWinningIndex] = useState(null);
 
-  // load balance
   useEffect(() => {
     (async () => {
       try {
@@ -71,11 +96,9 @@ export default function LuckyWheel() {
 
     toast(`🎲 Bet ${selectedChip} on ${selectedBet}`);
 
-    // clear old highlight immediately
     setWinningIndex(null);
     setSpinning(true);
 
-    // random spins and stop
     const randomSpins = 5 + Math.floor(Math.random() * 5);
     const randomStop = Math.random() * 360;
     const finalRotation = rotation + randomSpins * 360 + randomStop;
@@ -84,13 +107,11 @@ export default function LuckyWheel() {
 
     const duration = 6000;
     setTimeout(async () => {
-      // calculate where the wheel stopped
       const normalized = ((finalRotation % 360) + 360) % 360;
       const pointerAngle = 270; // 12 o’clock
       const relative = (pointerAngle - normalized + 360) % 360;
       const index = Math.floor(relative / anglePerSeg) % segCount;
 
-      // ✅ only now highlight the winning segment
       setWinningIndex(index);
 
       const winLabel = segments[index];
@@ -132,9 +153,9 @@ export default function LuckyWheel() {
 
         if (!res.ok) {
           toast.error(data?.message || `Server error (HTTP ${res.status})`);
-          setBalance(balance); // rollback
+          setBalance(balance);
         } else if (typeof data?.coins === "number") {
-          setBalance(data.coins); // trust backend
+          setBalance(data.coins);
         }
       } catch (err) {
         console.error(err);
@@ -146,7 +167,6 @@ export default function LuckyWheel() {
     }, duration);
   };
 
-  // segment path
   const radius = 180;
   const center = 200;
   const createPath = (i) => {
@@ -163,7 +183,6 @@ export default function LuckyWheel() {
     <div className="game-layout">
       {/* Left Controls */}
       <div className="left-panel">
-        {/* controls moved here but unchanged */}
         <div className="card">
           <div className="title">Choose Multiplier</div>
           <div className="mults">
@@ -203,7 +222,7 @@ export default function LuckyWheel() {
         </div>
       </div>
 
-      {/* Center Wheel (your code untouched) */}
+      {/* Center Wheel*/}
       <div className="center-panel">
         <div className="wheel-container">
           {/* pointer */}
@@ -269,33 +288,56 @@ export default function LuckyWheel() {
               </defs>
 
               {/* segments */}
-              {segments.map((val, i) => (
-                <g
-                  key={i}
-                  className={winningIndex === i ? "segment active" : "segment"}
-                >
-                  <path
-                    d={createPath(i)}
-                    fill={i % 2 === 0 ? "#6a0dad" : "#8000c0"}
-                    stroke="gold"
-                    strokeWidth="2"
-                  />
-                  <text
-                    x={200}
-                    y={200}
-                    transform={`rotate(${
-                      i * anglePerSeg + anglePerSeg / 2
-                    } 200 200) translate(150 0)`}
-                    textAnchor="middle"
-                    alignmentBaseline="middle"
-                    fontSize="16"
-                    fill="#fff"
-                    fontWeight="bold"
+              {segments.map((val, i) => {
+                const colorMap = {
+                  "2x": "#7f5af0", // bright violet crystal
+                  "3x": "#ff6fd8", // pink sapphire
+                  "4x": "#00d2ff", // cyan icy diamond
+                  "5x": "#ff9f1c", // amber/orange crystal
+                  "7x": "#b57edc", // soft yet gem-like
+                  "10x": "#fcdc4d", // golden diamond
+                  "15x": "#ff3f81", // neon pink crystal
+                  "20x": "#1abc9c", // turquoise diamond
+                  "25x": "#3498db", // deep icy blue
+                  "0x": "#7f8c8d", // muted grey for zero
+                };
+
+                const fillColor = colorMap[val] || "#7f5af0";
+
+                return (
+                  <g
+                    key={i}
+                    className={
+                      winningIndex === i ? "segment active" : "segment"
+                    }
                   >
-                    {val}
-                  </text>
-                </g>
-              ))}
+                    <path
+                      d={createPath(i)}
+                      fill={fillColor}
+                      stroke="#f8f9fa"
+                      strokeWidth="2"
+                    />
+
+                    <text
+                      x={200}
+                      y={200}
+                      transform={`rotate(${
+                        i * anglePerSeg + anglePerSeg / 2
+                      } 200 200) translate(150 0)`}
+                      textAnchor="middle"
+                      alignmentBaseline="middle"
+                      fontSize="16"
+                      fill="#fff"
+                      fontWeight="bold"
+                      stroke="#000"
+                      strokeWidth="2"
+                      paintOrder="stroke"
+                    >
+                      {val}
+                    </text>
+                  </g>
+                );
+              })}
 
               {/* center hub */}
               <circle
@@ -308,6 +350,14 @@ export default function LuckyWheel() {
             </svg>
           </div>
         </div>
+
+        <button
+          onClick={spinWheel}
+          disabled={spinning}
+          className="spin-btn block lg:hidden"
+        >
+          {spinning ? "Spinning..." : "Spin"}
+        </button>
       </div>
 
       {/* Right Balance */}
@@ -323,7 +373,11 @@ export default function LuckyWheel() {
         </div>
 
         {/* spin button */}
-        <button onClick={spinWheel} disabled={spinning} className="spin-btn">
+        <button
+          onClick={spinWheel}
+          disabled={spinning}
+          className="spin-btn hidden lg:block"
+        >
           {spinning ? "Spinning..." : "Spin"}
         </button>
       </div>
